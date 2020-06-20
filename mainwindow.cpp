@@ -16,6 +16,8 @@
 
 using namespace QtCharts;
 
+const int DELAY_MS = 100;
+
 static QDateTime now() {
     return QDateTime::currentDateTime();
 }
@@ -28,11 +30,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     QLineSeries *series = new QLineSeries();
     series->setName("Test Data");
-
-    for (int i = 0; i < 100; i++) {
-        QThread::msleep(10);
-        series->append(now().toMSecsSinceEpoch(), QRandomGenerator::global()->generateDouble());
-    }
 
     QChart *chart = new QChart();
     chart->addSeries(series);
@@ -55,6 +52,16 @@ MainWindow::MainWindow(QWidget *parent)
 
     setCentralWidget(chartView);
     resize(820, 600);
+
+    QTimer* timer = new QTimer;
+
+    axisX->setRange(now(), now().addSecs(10));
+
+    connect(timer, &QTimer::timeout, this, [=]() {
+        series->append(now().toMSecsSinceEpoch(), QRandomGenerator::global()->generateDouble());
+    });
+
+    timer->start(DELAY_MS);
 }
 
 MainWindow::~MainWindow()
