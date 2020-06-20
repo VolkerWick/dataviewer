@@ -16,7 +16,7 @@
 
 using namespace QtCharts;
 
-const int DELAY_MS = 100;
+const int DELAY_MS = 50;
 
 static QDateTime now() {
     return QDateTime::currentDateTime();
@@ -34,31 +34,36 @@ MainWindow::MainWindow(QWidget *parent)
     QChart *chart = new QChart();
     chart->addSeries(series);
 
-    QDateTimeAxis *axisX = new QDateTimeAxis;
-    axisX->setTickCount(10);
-    axisX->setFormat("hh:mm:ss,z");
-    axisX->setTitleText("Time");
-    chart->addAxis(axisX, Qt::AlignBottom);
-    series->attachAxis(axisX);
+    QDateTimeAxis *xAxis = new QDateTimeAxis;
+    xAxis->setTickCount(5);
+    xAxis->setFormat("HH:mm:ss,z");
+    xAxis->setTitleText("Time");
+    xAxis->setRange(now(), now().addSecs(10));
+    chart->addAxis(xAxis, Qt::AlignBottom);
+    series->attachAxis(xAxis);
 
-    QValueAxis *axisY = new QValueAxis;
-    axisY->setLabelFormat("%i");
-    axisY->setTitleText("Data");
-    chart->addAxis(axisY, Qt::AlignLeft);
-    series->attachAxis(axisY);
+    QValueAxis *yAxis = new QValueAxis;
+    yAxis->setLabelFormat("%i");
+    yAxis->setTitleText("Data");
+    chart->addAxis(yAxis, Qt::AlignLeft);
+    series->attachAxis(yAxis);
 
     QChartView *chartView = new QChartView(chart);
     chartView->setRenderHint(QPainter::Antialiasing);
 
     setCentralWidget(chartView);
-    resize(820, 600);
+    resize(1400, 800);
 
     QTimer* timer = new QTimer;
 
-    axisX->setRange(now(), now().addSecs(10));
 
     connect(timer, &QTimer::timeout, this, [=]() {
         series->append(now().toMSecsSinceEpoch(), QRandomGenerator::global()->generateDouble());
+        if (series->count() > xAxis->min().msecsTo(xAxis->max())/DELAY_MS) {
+            series->remove(0);
+            xAxis->setMin(xAxis->min().addMSecs(DELAY_MS));
+            xAxis->setMax(xAxis->max().addMSecs(DELAY_MS));
+        }
     });
 
     timer->start(DELAY_MS);
