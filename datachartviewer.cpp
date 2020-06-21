@@ -19,7 +19,6 @@ static QDateTime now() {
 
 DataChartViewer::DataChartViewer()
 {
-
     QLineSeries *series = new QLineSeries();
     series->setName("Test Data");
 
@@ -35,17 +34,15 @@ DataChartViewer::DataChartViewer()
     series->attachAxis(xAxis);
 
     QValueAxis *yAxis = new QValueAxis;
-    yAxis->setLabelFormat("%i");
+    yAxis->setLabelFormat("%.3f");
     yAxis->setTitleText("Data");
     chart->addAxis(yAxis, Qt::AlignLeft);
     series->attachAxis(yAxis);
 
-    //QChartView *chartView = new QChartView(chart);
     setChart(chart);
     setRenderHint(QPainter::Antialiasing);
 
     QTimer* timer = new QTimer;
-
 
     connect(timer, &QTimer::timeout, this, [=]() {
         series->append(now().toMSecsSinceEpoch(), QRandomGenerator::global()->generateDouble());
