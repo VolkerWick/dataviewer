@@ -1,4 +1,5 @@
-QT += core gui
+QT += core gui \
+    widgets
 QT += charts
 
 CONFIG += c++11
@@ -6,10 +7,12 @@ CONFIG += c++11
 DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
+    datachartviewer.cpp \
     main.cpp \
     mainwindow.cpp
 
 HEADERS += \
+    datachartviewer.h \
     mainwindow.h
 
 FORMS += \
