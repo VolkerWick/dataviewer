@@ -1,12 +1,10 @@
 #include "datachartviewer.h"
 
-#include <QLineSeries>
-#include <QDateTimeAxis>
-#include <QValueAxis>
-
 #include <QDateTime>
 #include <QTimer>
 #include <QRandomGenerator>
+
+#include <QDebug>
 
 using namespace QtCharts;
 
@@ -16,16 +14,18 @@ static QDateTime now() {
     return QDateTime::currentDateTime();
 }
 
-
 DataChartViewer::DataChartViewer()
+    : series(new QLineSeries(this))
+    , chart(new QChart)
+    , xAxis(new QDateTimeAxis(this))
+    , yAxis(new QValueAxis(this))
 {
-    QLineSeries *series = new QLineSeries();
     series->setName("Test Data");
 
-    QChart *chart = new QChart();
+    chart = new QChart();
     chart->addSeries(series);
 
-    QDateTimeAxis *xAxis = new QDateTimeAxis;
+    xAxis = new QDateTimeAxis;
     xAxis->setTickCount(5);
     xAxis->setFormat("HH:mm:ss,z");
     xAxis->setTitleText("Time");
@@ -33,7 +33,7 @@ DataChartViewer::DataChartViewer()
     chart->addAxis(xAxis, Qt::AlignBottom);
     series->attachAxis(xAxis);
 
-    QValueAxis *yAxis = new QValueAxis;
+    yAxis = new QValueAxis;
     yAxis->setLabelFormat("%.3f");
     yAxis->setTitleText("Data");
     chart->addAxis(yAxis, Qt::AlignLeft);
@@ -41,20 +41,21 @@ DataChartViewer::DataChartViewer()
 
     setChart(chart);
     setRenderHint(QPainter::Antialiasing);
+}
 
-    QTimer* timer = new QTimer;
+void DataChartViewer::receiveDataRow(QList<QPointF> dataPoints) {
+    qDebug() << "received points" << dataPoints;
 
-    connect(timer, &QTimer::timeout, this, [=]() {
-        series->append(now().toMSecsSinceEpoch(), QRandomGenerator::global()->generateDouble());
+    if (dataPoints.length() > 1) {
+
+        QPointF first = dataPoints.takeAt(1);
+
+        series->append(first);
         if (series->count() > xAxis->min().msecsTo(xAxis->max())/DELAY_MS) {
             series->remove(0);
             xAxis->setMin(xAxis->min().addMSecs(DELAY_MS));
             xAxis->setMax(xAxis->max().addMSecs(DELAY_MS));
         }
-    });
-
-    timer->start(DELAY_MS);
-
-
+    }
 
 }

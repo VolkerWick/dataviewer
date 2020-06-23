@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 
 #include "datachartviewer.h"
+#include "serialportreader.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -9,11 +10,17 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    setCentralWidget(new DataChartViewer);
+    SerialPortReader* serialPortReader = new SerialPortReader(this);
+    chartViewer = new DataChartViewer;
+
+    connect(serialPortReader, &SerialPortReader::sendDataRow, chartViewer, &DataChartViewer::receiveDataRow);
+
+    setCentralWidget(chartViewer);
 }
 
 MainWindow::~MainWindow()
 {
+    delete chartViewer;
     delete ui;
 }
 
