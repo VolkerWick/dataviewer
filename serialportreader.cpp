@@ -20,17 +20,13 @@ SerialPortReader::SerialPortReader(QObject *parent)
                 QDateTime stamp = QDateTime::currentDateTime();
                 QByteArray line = port->readLine();
 
-                qDebug() << "Line: " << line;
-
                 QList<QPointF> dataPoints;
                 QByteArrayList items = line.split(',');
-                qDebug() << items;
+
                 for (const QByteArray& item : items) {
-                    bool ok;
-                    float floatValue = item.toFloat(&ok);
+                    float floatValue = item.toFloat();
                     dataPoints << QPointF(stamp.toMSecsSinceEpoch(), floatValue);
                 }
-                qDebug() << "Sending dataPoints:" << dataPoints;
 
                 emit sendDataRow(dataPoints);
             }

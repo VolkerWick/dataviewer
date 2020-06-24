@@ -8,8 +8,6 @@
 
 using namespace QtCharts;
 
-const int DELAY_MS = 50;
-
 static QDateTime now() {
     return QDateTime::currentDateTime();
 }
@@ -44,18 +42,32 @@ DataChartViewer::DataChartViewer()
 }
 
 void DataChartViewer::receiveDataRow(QList<QPointF> dataPoints) {
-    qDebug() << "received points" << dataPoints;
+    // qDebug() << "received points" << dataPoints;
 
     if (dataPoints.length() > 1) {
 
-        QPointF first = dataPoints.takeAt(1);
+        QPointF newPoint = dataPoints.takeAt(0);
 
-        series->append(first);
-        if (series->count() > xAxis->min().msecsTo(xAxis->max())/DELAY_MS) {
+        // adjust yAxis range
+        if (yAxis->max() < newPoint.ry()) {
+            yAxis->setMax(newPoint.ry() * 1.1f);
+        }
+
+        if (yAxis->min() > newPoint.ry()) {
+            yAxis->setMin(newPoint.ry() * 1.1f);
+        }
+
+        series->append(newPoint);
+
+        if (xAxis->max().toMSecsSinceEpoch() < newPoint.rx()) {
+            xAxis->setMax(QDateTime::fromMSecsSinceEpoch(newPoint.rx()));
+        }
+
+        // adjust xAxis range
+        if (series->count() > 1000) {
+            QPointF leftmostPoint = series->at(0);
             series->remove(0);
-            xAxis->setMin(xAxis->min().addMSecs(DELAY_MS));
-            xAxis->setMax(xAxis->max().addMSecs(DELAY_MS));
+            xAxis->setMin(QDateTime::fromMSecsSinceEpoch(leftmostPoint.rx()));
         }
     }
-
 }
