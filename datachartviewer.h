@@ -18,15 +18,13 @@ class DataChartViewer : public QtCharts::QChartView
     Q_OBJECT
 public:
     DataChartViewer(const QStringList& signalNames);
+    ~DataChartViewer();
 
 public slots:
     void receiveDataRow(QList<QPointF>);
 
 private:
-    QLineSeries* series;
     QChart* chart;
-    QDateTimeAxis* xAxis;
-    QValueAxis* yAxis;
 
 };
 

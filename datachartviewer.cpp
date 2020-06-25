@@ -13,22 +13,25 @@ static QDateTime now() {
 }
 
 DataChartViewer::DataChartViewer(const QStringList &signalNames)
-    : series(new QLineSeries(this))
-    , chart(new QChart)
-    , xAxis(new QDateTimeAxis(this))
-    , yAxis(new QValueAxis(this))
+    : chart(new QChart)
 {
+    // one x axis for all series
+    QDateTimeAxis* xAxis = new QDateTimeAxis(this);
+
+    xAxis->setTickCount(5);
+    xAxis->setFormat("HH:mm:ss,zzz");
+    xAxis->setTitleText("Time");
+    xAxis->setRange(now(), now().addSecs(10));
+    chart->addAxis(xAxis, Qt::AlignBottom);
+
     for (auto name : signalNames) {
+        QLineSeries* series = new QLineSeries(this);
         series->setName(name);
 
         chart->addSeries(series);
-
-        xAxis->setTickCount(5);
-        xAxis->setFormat("HH:mm:ss,zzz");
-        xAxis->setTitleText("Time");
-        xAxis->setRange(now(), now().addSecs(10));
-        chart->addAxis(xAxis, Qt::AlignBottom);
         series->attachAxis(xAxis);
+
+        QValueAxis* yAxis = new QValueAxis(this);
 
         yAxis->setLabelFormat("%.3f");
         yAxis->setTitleText(name);
@@ -40,10 +43,32 @@ DataChartViewer::DataChartViewer(const QStringList &signalNames)
     setRenderHint(QPainter::Antialiasing);
 }
 
+DataChartViewer::~DataChartViewer()
+{
+    delete chart;
+}
+
 void DataChartViewer::receiveDataRow(QList<QPointF> dataPoints) {
     // qDebug() << "received points" << dataPoints;
 
+    QAbstractAxis* xAxis = chart->axes(Qt::Horizontal).first();
+
+    int index = 0;
+
+    for (auto point : dataPoints) {
+        if (index < chart->series().count()) {
+            QLineSeries* series = dynamic_cast<QLineSeries*>(chart->series()[index]);
+            if (series != nullptr) {
+                series->append(point);
+            }
+        }
+
+        ++index;
+    }
+
+    /*
     if (dataPoints.length() > 1) {
+
 
         QPointF newPoint = dataPoints.takeAt(0);
 
@@ -69,4 +94,5 @@ void DataChartViewer::receiveDataRow(QList<QPointF> dataPoints) {
             xAxis->setMin(QDateTime::fromMSecsSinceEpoch(leftmostPoint.rx()));
         }
     }
+    */
 }
