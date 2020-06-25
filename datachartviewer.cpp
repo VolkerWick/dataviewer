@@ -12,30 +12,29 @@ static QDateTime now() {
     return QDateTime::currentDateTime();
 }
 
-DataChartViewer::DataChartViewer()
+DataChartViewer::DataChartViewer(const QStringList &signalNames)
     : series(new QLineSeries(this))
     , chart(new QChart)
     , xAxis(new QDateTimeAxis(this))
     , yAxis(new QValueAxis(this))
 {
-    series->setName("Test Data");
+    for (auto name : signalNames) {
+        series->setName(name);
 
-    chart = new QChart();
-    chart->addSeries(series);
+        chart->addSeries(series);
 
-    xAxis = new QDateTimeAxis;
-    xAxis->setTickCount(5);
-    xAxis->setFormat("HH:mm:ss,z");
-    xAxis->setTitleText("Time");
-    xAxis->setRange(now(), now().addSecs(10));
-    chart->addAxis(xAxis, Qt::AlignBottom);
-    series->attachAxis(xAxis);
+        xAxis->setTickCount(5);
+        xAxis->setFormat("HH:mm:ss,zzz");
+        xAxis->setTitleText("Time");
+        xAxis->setRange(now(), now().addSecs(10));
+        chart->addAxis(xAxis, Qt::AlignBottom);
+        series->attachAxis(xAxis);
 
-    yAxis = new QValueAxis;
-    yAxis->setLabelFormat("%.3f");
-    yAxis->setTitleText("Data");
-    chart->addAxis(yAxis, Qt::AlignLeft);
-    series->attachAxis(yAxis);
+        yAxis->setLabelFormat("%.3f");
+        yAxis->setTitleText(name);
+        chart->addAxis(yAxis, Qt::AlignLeft);
+        series->attachAxis(yAxis);
+    }
 
     setChart(chart);
     setRenderHint(QPainter::Antialiasing);

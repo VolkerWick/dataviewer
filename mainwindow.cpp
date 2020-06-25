@@ -11,7 +11,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
 
     SerialPortReader* serialPortReader = new SerialPortReader(this);
-    chartViewer = new DataChartViewer;
+    chartViewer = new DataChartViewer(QStringList{ "Sine Wave", "Cosine Wave", "Random Values"});
 
     connect(serialPortReader, &SerialPortReader::sendDataRow, chartViewer, &DataChartViewer::receiveDataRow);
 

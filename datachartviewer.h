@@ -17,7 +17,7 @@ class DataChartViewer : public QtCharts::QChartView
 {
     Q_OBJECT
 public:
-    DataChartViewer();
+    DataChartViewer(const QStringList& signalNames);
 
 public slots:
     void receiveDataRow(QList<QPointF>);

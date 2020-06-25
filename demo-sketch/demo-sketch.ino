@@ -10,17 +10,26 @@ const char DELIMITER = ',';
 void setup() {
 
   Serial.begin(9600);
-  Serial.println("#\tsin\tcos");
+  Serial.print("sin");
+  Serial.print(DELIMITER);
+  Serial.print("cos");
+  Serial.print(DELIMITER);
+  Serial.print("random");
+  Serial.println();
 
   pinMode(LED_BUILTIN, OUTPUT);
 }
 
 // print values to serial port, all values in one line
 // values separated by DELIMITER
-void printToSerialPort(float sine, float cosine) {
+void printToSerialPort(float sine, float cosine, float rnd) {
   
-  Serial.print(sine); Serial.print(DELIMITER);
-  Serial.print(cosine); Serial.println();  
+  Serial.print(sine); 
+  Serial.print(DELIMITER);
+  Serial.print(cosine); 
+  Serial.print(DELIMITER);
+  Serial.print(rnd);
+  Serial.println();  
 }
 
 
@@ -39,9 +48,10 @@ void loop() {
   // sine and cosine expect angle in radians
   float rad = 0.01745329252 * (count % 360);
   
-  double sine = sin(rad);
-  float cosine = cos(rad);
+  float sine = sin(rad);
+  float cosine = 2 * cos(rad);
+  float rnd = (float)random(1000)/1000;
 
-  printToSerialPort(sine, cosine);
-  delay(10);
+  printToSerialPort(sine, cosine, rnd);
+  delay(1);
 }
