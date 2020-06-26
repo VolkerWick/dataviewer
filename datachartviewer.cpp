@@ -24,6 +24,7 @@ DataChartViewer::DataChartViewer(const QStringList &signalNames)
     xAxis->setRange(now(), now().addSecs(10));
     chart->addAxis(xAxis, Qt::AlignBottom);
 
+    int index = 0;
     for (auto name : signalNames) {
         QLineSeries* series = new QLineSeries(this);
         series->setName(name);
@@ -35,8 +36,13 @@ DataChartViewer::DataChartViewer(const QStringList &signalNames)
 
         yAxis->setLabelFormat("%.3f");
         yAxis->setTitleText(name);
-        chart->addAxis(yAxis, Qt::AlignLeft);
+        if (index % 2 == 0) {
+            chart->addAxis(yAxis, Qt::AlignLeft);
+        } else {
+            chart->addAxis(yAxis, Qt::AlignRight);
+        }
         series->attachAxis(yAxis);
+        ++index;
     }
 
     setChart(chart);
@@ -51,48 +57,54 @@ DataChartViewer::~DataChartViewer()
 void DataChartViewer::receiveDataRow(QList<QPointF> dataPoints) {
     // qDebug() << "received points" << dataPoints;
 
-    QAbstractAxis* xAxis = chart->axes(Qt::Horizontal).first();
+    QDateTimeAxis* xAxis = dynamic_cast<QDateTimeAxis*>(chart->axes(Qt::Horizontal).first());
 
     int index = 0;
 
     for (auto point : dataPoints) {
         if (index < chart->series().count()) {
-            QLineSeries* series = dynamic_cast<QLineSeries*>(chart->series()[index]);
+            QLineSeries* series = dynamic_cast<QLineSeries*>(chart->series().at(index));
             if (series != nullptr) {
+
                 series->append(point);
+
+                // slide x axis
+                if (index == 0 && xAxis) {
+                    if (xAxis->max() < QDateTime::fromMSecsSinceEpoch(point.rx())) {
+                        xAxis->setMax(QDateTime::fromMSecsSinceEpoch(point.rx()));
+                    }
+
+                    if (series->count() > 1000) {
+                        QPointF leftmostPoint = series->at(0);
+                        series->remove(0);
+                        xAxis->setMin(QDateTime::fromMSecsSinceEpoch(leftmostPoint.rx()));
+                    }
+                }
+
+                // adjust y axis
+                QValueAxis* yAxis = dynamic_cast<QValueAxis*>(series->attachedAxes().at(1));
+
+                qreal min = yAxis->min();
+                qreal max = yAxis->max();
+
+                for (auto point : series->points()) {
+                    if (point.ry() < min) {
+                        min = point.ry();
+                    }
+                    if (point.ry() > max) {
+                        max = point.ry();
+                    }
+                }
+
+                if (min < yAxis->min()) {
+                    yAxis->setMin(min);
+                }
+                if (max > yAxis->max()) {
+                    yAxis->setMax(max);
+                }
             }
         }
 
         ++index;
     }
-
-    /*
-    if (dataPoints.length() > 1) {
-
-
-        QPointF newPoint = dataPoints.takeAt(0);
-
-        // adjust yAxis range
-        if (yAxis->max() < newPoint.ry()) {
-            yAxis->setMax(newPoint.ry() * 1.1f);
-        }
-
-        if (yAxis->min() > newPoint.ry()) {
-            yAxis->setMin(newPoint.ry() * 1.1f);
-        }
-
-        series->append(newPoint);
-
-        if (xAxis->max().toMSecsSinceEpoch() < newPoint.rx()) {
-            xAxis->setMax(QDateTime::fromMSecsSinceEpoch(newPoint.rx()));
-        }
-
-        // adjust xAxis range
-        if (series->count() > 1000) {
-            QPointF leftmostPoint = series->at(0);
-            series->remove(0);
-            xAxis->setMin(QDateTime::fromMSecsSinceEpoch(leftmostPoint.rx()));
-        }
-    }
-    */
 }

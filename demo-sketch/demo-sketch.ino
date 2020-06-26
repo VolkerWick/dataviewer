@@ -48,7 +48,7 @@ void loop() {
   // sine and cosine expect angle in radians
   float rad = 0.01745329252 * (count % 360);
   
-  float sine = sin(rad);
+  float sine = sin(rad * rad);
   float cosine = 2 * cos(rad);
   float rnd = (float)random(500)/1000;
 
