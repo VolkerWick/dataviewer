@@ -54,6 +54,14 @@ DataChartViewer::~DataChartViewer()
     delete chart;
 }
 
+static bool less(const QPointF& left, const QPointF& right) {
+    return left.y() < right.y();
+}
+
+static bool greater(const QPointF& left, const QPointF& right) {
+    return left.y() > right.y();
+}
+
 void DataChartViewer::receiveDataRow(QList<QPointF> dataPoints) {
     // qDebug() << "received points" << dataPoints;
 
@@ -68,40 +76,27 @@ void DataChartViewer::receiveDataRow(QList<QPointF> dataPoints) {
 
                 series->append(point);
 
+                if (series->count() > 800) {
+                    QPointF leftmostPoint = series->at(0);
+                    series->remove(0);
+                    xAxis->setMin(QDateTime::fromMSecsSinceEpoch(leftmostPoint.rx()));
+                }
+
                 // slide x axis
                 if (index == 0 && xAxis) {
                     if (xAxis->max() < QDateTime::fromMSecsSinceEpoch(point.rx())) {
                         xAxis->setMax(QDateTime::fromMSecsSinceEpoch(point.rx()));
                     }
-
-                    if (series->count() > 1000) {
-                        QPointF leftmostPoint = series->at(0);
-                        series->remove(0);
-                        xAxis->setMin(QDateTime::fromMSecsSinceEpoch(leftmostPoint.rx()));
-                    }
                 }
 
                 // adjust y axis
+                auto maxPos = std::max_element(series->pointsVector().cbegin(), series->pointsVector().cend(), less);
+                auto minPos = std::max_element(series->pointsVector().cbegin(), series->pointsVector().cend(), greater);
+
                 QValueAxis* yAxis = dynamic_cast<QValueAxis*>(series->attachedAxes().at(1));
+                yAxis->setMax(ceil(maxPos->y()));
+                yAxis->setMin(floor(minPos->y()));
 
-                qreal min = yAxis->min();
-                qreal max = yAxis->max();
-
-                for (auto point : series->points()) {
-                    if (point.ry() < min) {
-                        min = point.ry();
-                    }
-                    if (point.ry() > max) {
-                        max = point.ry();
-                    }
-                }
-
-                if (min < yAxis->min()) {
-                    yAxis->setMin(min);
-                }
-                if (max > yAxis->max()) {
-                    yAxis->setMax(max);
-                }
             }
         }
 

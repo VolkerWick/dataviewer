@@ -50,7 +50,7 @@ void loop() {
   
   float sine = sin(rad * rad);
   float cosine = 2 * cos(rad);
-  float rnd = (float)random(500)/1000;
+  float rnd = sin(0.01745329252 * count * 0.1) * 10;
 
   printToSerialPort(sine, cosine, rnd);
   delay(1);
