@@ -10,28 +10,11 @@ const char DELIMITER = ',';
 void setup() {
 
   Serial.begin(9600);
-  Serial.print("sin");
-  Serial.print(DELIMITER);
-  Serial.print("cos");
-  Serial.print(DELIMITER);
-  Serial.print("random");
-  Serial.println();
-
-  pinMode(LED_BUILTIN, OUTPUT);
-}
-
-// print values to serial port, all values in one line
-// values separated by DELIMITER
-void printToSerialPort(float sine, float cosine, float rnd) {
   
-  Serial.print(sine); 
-  Serial.print(DELIMITER);
-  Serial.print(cosine); 
-  Serial.print(DELIMITER);
-  Serial.print(rnd);
-  Serial.println();  
-}
+  pinMode(LED_BUILTIN, OUTPUT);
 
+  Serial.print("sig1\tsig2\tsig3\tsig4\tsig5\tsig6\tsig7\tsig8\tsig9\t\n");
+}
 
 void loop() {
 
@@ -47,11 +30,42 @@ void loop() {
 
   // sine and cosine expect angle in radians
   float rad = 0.01745329252 * (count % 360);
-  
-  float sine = sin(rad * rad);
-  float cosine = 2 * cos(rad);
-  float rnd = sin(0.01745329252 * count * 0.1) * 10;
 
-  printToSerialPort(sine, cosine, rnd);
-  delay(1);
+  // sig1
+  Serial.print(sin(rad));
+  Serial.print(DELIMITER);
+
+  // sig2
+  Serial.print(cos(rad));
+  Serial.print(DELIMITER);
+
+  // sig3
+  Serial.print(sin(2 * rad));
+  Serial.print(DELIMITER);
+
+  // sig4
+  Serial.print(cos(2 * rad));
+  Serial.print(DELIMITER);
+
+  // sig5
+  Serial.print(sin(3 * rad));
+  Serial.print(DELIMITER);
+
+  // sig6
+  Serial.print(cos(3 * rad));
+  Serial.print(DELIMITER);
+
+  // sig7
+  Serial.print(sin(4 * rad));
+  Serial.print(DELIMITER);
+
+  // sig8
+  Serial.print(cos(4 * rad));
+  Serial.print(DELIMITER);
+
+  // sig9
+  Serial.print(sin(0.01745329252 * count * 0.1) * 10);
+  Serial.println();
+
+  delay(10);
 }

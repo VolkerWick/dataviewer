@@ -19,6 +19,5 @@ public:
 
 private:
     Ui::MainWindow* ui;
-    DataChartViewer* chartViewer;
 };
 #endif // MAINWINDOW_H

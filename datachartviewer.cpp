@@ -63,13 +63,25 @@ static bool greater(const QPointF& left, const QPointF& right) {
 }
 
 void DataChartViewer::receiveDataRow(QList<QPointF> dataPoints) {
-    // qDebug() << "received points" << dataPoints;
+    qDebug() << "received points" << dataPoints;
+
+    QList<QPointF> effectiveDataPoints;
+
+    if (visibleIndices.isEmpty()) {
+        effectiveDataPoints = dataPoints;
+    } else {
+        for (int index : visibleIndices) {
+            if (index < dataPoints.count()) {
+                effectiveDataPoints << dataPoints.at(index);
+            }
+        }
+    }
 
     QDateTimeAxis* xAxis = dynamic_cast<QDateTimeAxis*>(chart->axes(Qt::Horizontal).first());
 
     int index = 0;
 
-    for (auto point : dataPoints) {
+    for (auto point : effectiveDataPoints) {
         if (index < chart->series().count()) {
             QLineSeries* series = dynamic_cast<QLineSeries*>(chart->series().at(index));
             if (series != nullptr) {
