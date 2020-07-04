@@ -14,10 +14,20 @@ class DataLogger : public QObject
 public:
     explicit DataLogger(QObject *parent = nullptr);
 
+    // full path of log file
+    QString logFileAbsolutePath() const;
+
+    // log file's containing directory
+    QString logFilePath() const;
+
+    // log file's name
+    QString logFileName() const;
+
 public slots:
     void receiveDataRow(QList<QPointF>);
 
 private:
+    QString _logFilePath;
     QFile* logFile;
     QTextStream logStream;
 };

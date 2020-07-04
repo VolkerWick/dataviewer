@@ -3,7 +3,7 @@
 #include <QStandardPaths>
 #include <QDateTime>
 #include <QDir>
-
+#include <QFileInfo>
 #include <QFile>
 #include <QTextStream>
 
@@ -24,14 +24,30 @@ static QString logFilePath() {
 
 DataLogger::DataLogger(QObject *parent)
     : QObject(parent)
-    , logFile(new QFile(logFilePath(), parent))
+    , _logFilePath(::logFilePath())
+    , logFile(new QFile(_logFilePath, parent))
 {
     if (!logFile->open(QIODevice::WriteOnly|QIODevice::Text)) {
-        qCritical() << "Unable to open LogFile" << logFilePath() << logFile->errorString();
+        qCritical() << "Unable to open LogFile" << logFileAbsolutePath() << logFile->errorString();
     } else {
         logStream.setDevice(logFile);
         logStream.setRealNumberNotation(QTextStream::FixedNotation);
     }
+}
+
+QString DataLogger::logFileAbsolutePath() const
+{
+    return _logFilePath;
+}
+
+QString DataLogger::logFilePath() const
+{
+    return QFileInfo(logFileAbsolutePath()).path();
+}
+
+QString DataLogger::logFileName() const
+{
+    return QFileInfo(logFileAbsolutePath()).fileName();
 }
 
 static QTextStream& operator<<(QTextStream& s, QList<QPointF>& dataPoints) {

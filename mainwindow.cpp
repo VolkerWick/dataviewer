@@ -6,6 +6,8 @@
 #include "datalogger.h"
 
 #include <QGridLayout>
+#include <QPushButton>
+#include <QDesktopServices>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -44,6 +46,19 @@ MainWindow::MainWindow(QWidget *parent)
     gridLayout->addWidget(chart4, 1, 1);
 
     centralWidget()->setLayout(gridLayout);
+
+    QPushButton* logDirLink = new QPushButton(dataLogger->logFilePath(), this);
+    connect(logDirLink, &QPushButton::clicked, this,[=]() {
+        QDesktopServices::openUrl(dataLogger->logFilePath());
+    });
+
+    QPushButton* logFileLink = new QPushButton(dataLogger->logFileName(), this);
+    connect(logFileLink, &QPushButton::clicked, this,[=]() {
+        QDesktopServices::openUrl(dataLogger->logFileAbsolutePath());
+    });
+
+    ui->statusbar->addWidget(logDirLink);
+    ui->statusbar->addWidget(logFileLink);
 }
 
 MainWindow::~MainWindow()
