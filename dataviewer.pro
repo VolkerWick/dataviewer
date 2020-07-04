@@ -7,12 +7,14 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     datachartviewer.cpp \
+    datalogger.cpp \
     main.cpp \
     mainwindow.cpp \
     serialportreader.cpp
 
 HEADERS += \
     datachartviewer.h \
+    datalogger.h \
     mainwindow.h \
     serialportreader.h
 

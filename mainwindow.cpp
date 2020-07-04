@@ -3,6 +3,7 @@
 
 #include "datachartviewer.h"
 #include "serialportreader.h"
+#include "datalogger.h"
 
 #include <QGridLayout>
 
@@ -13,6 +14,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
 
     SerialPortReader* serialPortReader = new SerialPortReader(this);
+    DataLogger* dataLogger = new DataLogger(this);
+
 
     DataChartViewer* chart1 = new DataChartViewer({"Eins", "Zwei", "Drei"});
     chart1->setVisibleIndices({0,1,2});
@@ -30,6 +33,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(serialPortReader, &SerialPortReader::sendDataRow, chart2, &DataChartViewer::receiveDataRow);
     connect(serialPortReader, &SerialPortReader::sendDataRow, chart3, &DataChartViewer::receiveDataRow);
     connect(serialPortReader, &SerialPortReader::sendDataRow, chart4, &DataChartViewer::receiveDataRow);
+
+    connect(serialPortReader, &SerialPortReader::sendDataRow, dataLogger, &DataLogger::receiveDataRow);
 
     QGridLayout* gridLayout = new QGridLayout;
 

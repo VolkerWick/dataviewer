@@ -1,14 +1,7 @@
 #ifndef DATACHARTVIEWER_H
 #define DATACHARTVIEWER_H
 
-#include <QWidget>
 #include <QChartView>
-#include <QPointF>
-
-#include <QLineSeries>
-#include <QChart>
-#include <QDateTimeAxis>
-#include <QValueAxis>
 
 using namespace QtCharts;
 

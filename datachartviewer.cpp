@@ -1,5 +1,9 @@
 #include "datachartviewer.h"
 
+#include <QDateTimeAxis>
+#include <QLineSeries>
+#include <QValueAxis>
+
 #include <QDateTime>
 #include <QTimer>
 #include <QRandomGenerator>
@@ -63,8 +67,6 @@ static bool greater(const QPointF& left, const QPointF& right) {
 }
 
 void DataChartViewer::receiveDataRow(QList<QPointF> dataPoints) {
-    qDebug() << "received points" << dataPoints;
-
     QList<QPointF> effectiveDataPoints;
 
     if (visibleIndices.isEmpty()) {
