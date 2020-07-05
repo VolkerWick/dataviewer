@@ -18,23 +18,19 @@ MainWindow::MainWindow(QWidget *parent)
     SerialPortReader* serialPortReader = new SerialPortReader(this);
     DataLogger* dataLogger = new DataLogger(this);
 
+    DataChartViewer* chart1 = new DataChartViewer({{"Amp-1", "red", Qt::AlignLeft}, {"Amp-2", "green"}, {"Amp-3", "blue"},
+                                                   {"Volt-1", "darkRed", Qt::AlignRight}, { "Volt-2", "darkGreen"}, { "Volt-3", "darkBlue"}});
+    DataChartViewer* chart2 = new DataChartViewer({{"Sig-7", "cyan", Qt::AlignLeft}});
+    DataChartViewer* chart3 = new DataChartViewer({{"Sig-8", "magenta", Qt::AlignLeft}});
+    DataChartViewer* chart4 = new DataChartViewer({{"Sig-9","blue", Qt::AlignLeft}});
 
-    DataChartViewer* chart1 = new DataChartViewer({"Eins", "Zwei", "Drei"});
-    chart1->setVisibleIndices({0,1,2});
-
-    DataChartViewer* chart2 = new DataChartViewer({"Vier", "Fünf" });
-    chart2->setVisibleIndices({3,4});
-
-    DataChartViewer* chart3 = new DataChartViewer({"Sechs", "Sieben"});
-    chart3->setVisibleIndices({5,6});
-
-    DataChartViewer* chart4 = new DataChartViewer({"Acht", "Neun"});
-    chart4->setVisibleIndices({7,8});
-
+    // serialPortReader sends the received points to the first chart
+    // each chart consumes as many points as needed and forwards 
+    // remaining data points to the next
     connect(serialPortReader, &SerialPortReader::sendDataRow, chart1, &DataChartViewer::receiveDataRow);
-    connect(serialPortReader, &SerialPortReader::sendDataRow, chart2, &DataChartViewer::receiveDataRow);
-    connect(serialPortReader, &SerialPortReader::sendDataRow, chart3, &DataChartViewer::receiveDataRow);
-    connect(serialPortReader, &SerialPortReader::sendDataRow, chart4, &DataChartViewer::receiveDataRow);
+    connect(chart1, &DataChartViewer::sendDataRow, chart2, &DataChartViewer::receiveDataRow);
+    connect(chart2, &DataChartViewer::sendDataRow, chart3, &DataChartViewer::receiveDataRow);
+    connect(chart3, &DataChartViewer::sendDataRow, chart4, &DataChartViewer::receiveDataRow);
 
     connect(serialPortReader, &SerialPortReader::sendDataRow, dataLogger, &DataLogger::receiveDataRow);
 

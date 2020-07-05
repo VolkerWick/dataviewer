@@ -16,7 +16,7 @@ static QDateTime now() {
     return QDateTime::currentDateTime();
 }
 
-DataChartViewer::DataChartViewer(const QStringList &signalNames)
+DataChartViewer::DataChartViewer(const QList<SignalInfo> &signalInfo)
     : chart(new QChart)
 {
     // one x axis for all series
@@ -29,23 +29,31 @@ DataChartViewer::DataChartViewer(const QStringList &signalNames)
     chart->addAxis(xAxis, Qt::AlignBottom);
 
     int index = 0;
-    for (auto name : signalNames) {
+    for (auto info : signalInfo) {
         QLineSeries* series = new QLineSeries(this);
-        series->setName(name);
+        series->setName(info.name());
+        series->setColor(info.color());
 
         chart->addSeries(series);
         series->attachAxis(xAxis);
 
-        QValueAxis* yAxis = new QValueAxis(this);
+        // if alignment is specified create new y Axis using alignment
+        // otherwise attach existing axis to the series
+        if (info.alignment()) {
+            QValueAxis* yAxis = new QValueAxis(this);
 
-        yAxis->setLabelFormat("%.3f");
-        yAxis->setTitleText(name);
-        if (index % 2 == 0) {
-            chart->addAxis(yAxis, Qt::AlignLeft);
+            yAxis->setLabelFormat("%.3f");
+            yAxis->setTitleText(info.name());
+
+            chart->addAxis(yAxis, info.alignment());
+
+            series->attachAxis(yAxis);
         } else {
-            chart->addAxis(yAxis, Qt::AlignRight);
+            // no alignment given, use last axis for this series
+            if (QValueAxis* lastAxis = dynamic_cast<QValueAxis*>(chart->axes(Qt::Vertical).last())) {
+                series->attachAxis(lastAxis);
+            }
         }
-        series->attachAxis(yAxis);
         ++index;
     }
 
@@ -66,54 +74,49 @@ static bool greater(const QPointF& left, const QPointF& right) {
     return left.y() > right.y();
 }
 
+// receiveDataRow consumes as many points as are needed to plot the signals for the owned graph
+// and forwards the remaining list of points to the next DataChartViewer
 void DataChartViewer::receiveDataRow(QList<QPointF> dataPoints) {
     QList<QPointF> effectiveDataPoints;
 
-    if (visibleIndices.isEmpty()) {
-        effectiveDataPoints = dataPoints;
-    } else {
-        for (int index : visibleIndices) {
-            if (index < dataPoints.count()) {
-                effectiveDataPoints << dataPoints.at(index);
-            }
-        }
-    }
-
     QDateTimeAxis* xAxis = dynamic_cast<QDateTimeAxis*>(chart->axes(Qt::Horizontal).first());
 
-    int index = 0;
+    for (int index = 0; index < chart->series().count(); index++) {
 
-    for (auto point : effectiveDataPoints) {
-        if (index < chart->series().count()) {
-            QLineSeries* series = dynamic_cast<QLineSeries*>(chart->series().at(index));
-            if (series != nullptr) {
+        QLineSeries* series = dynamic_cast<QLineSeries*>(chart->series().at(index));
+        if (series != nullptr && !dataPoints.isEmpty()) {
 
-                series->append(point);
+            QPointF point = dataPoints.takeFirst();
 
-                if (series->count() > 800) {
-                    QPointF leftmostPoint = series->at(0);
-                    series->remove(0);
-                    xAxis->setMin(QDateTime::fromMSecsSinceEpoch(leftmostPoint.rx()));
+            series->append(point);
+
+            if (series->count() > 800) {
+                QPointF leftmostPoint = series->at(0);
+                series->remove(0);
+                xAxis->setMin(QDateTime::fromMSecsSinceEpoch(leftmostPoint.rx()));
+            }
+
+            // slide x axis
+            if (index == 0 && xAxis) {
+                if (xAxis->max() < QDateTime::fromMSecsSinceEpoch(point.rx())) {
+                    xAxis->setMax(QDateTime::fromMSecsSinceEpoch(point.rx()));
                 }
+            }
 
-                // slide x axis
-                if (index == 0 && xAxis) {
-                    if (xAxis->max() < QDateTime::fromMSecsSinceEpoch(point.rx())) {
-                        xAxis->setMax(QDateTime::fromMSecsSinceEpoch(point.rx()));
-                    }
-                }
-
+            if (series->attachedAxes().count() > 1) {
                 // adjust y axis
                 auto maxPos = std::max_element(series->pointsVector().cbegin(), series->pointsVector().cend(), less);
                 auto minPos = std::max_element(series->pointsVector().cbegin(), series->pointsVector().cend(), greater);
 
+                // first axis (index 0) is always xAxis
                 QValueAxis* yAxis = dynamic_cast<QValueAxis*>(series->attachedAxes().at(1));
                 yAxis->setMax(ceil(maxPos->y()));
                 yAxis->setMin(floor(minPos->y()));
-
             }
         }
+    }
 
-        ++index;
+    if (!dataPoints.isEmpty()) {
+        emit sendDataRow(dataPoints);
     }
 }
