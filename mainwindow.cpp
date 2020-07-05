@@ -48,11 +48,15 @@ MainWindow::MainWindow(QWidget *parent)
     centralWidget()->setLayout(gridLayout);
 
     QPushButton* logDirLink = new QPushButton(dataLogger->logFilePath(), this);
+    logDirLink->setToolTip(tr("Open log dir"));
+
     connect(logDirLink, &QPushButton::clicked, this,[=]() {
         QDesktopServices::openUrl(dataLogger->logFilePath());
     });
 
     QPushButton* logFileLink = new QPushButton(dataLogger->logFileName(), this);
+    logFileLink->setToolTip(tr("Open log file"));
+
     connect(logFileLink, &QPushButton::clicked, this,[=]() {
         QDesktopServices::openUrl(dataLogger->logFileAbsolutePath());
     });
