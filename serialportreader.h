@@ -12,6 +12,15 @@ class SerialPortReader : public QObject
 public:
     explicit SerialPortReader(QObject *parent = nullptr);
 
+    static QStringList portNames();
+
+    bool open(const QString& portName);
+    void close();
+
+    bool isOpen() const;
+
+    QString errorString() const;
+
 signals:
     void sendDataRow(QList<QPointF>);
 

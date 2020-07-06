@@ -8,8 +8,6 @@
 #include <QTimer>
 #include <QRandomGenerator>
 
-#include <QDebug>
-
 using namespace QtCharts;
 
 static QDateTime now() {
@@ -90,7 +88,7 @@ void DataChartViewer::receiveDataRow(QList<QPointF> dataPoints) {
 
             series->append(point);
 
-            if (series->count() > 800) {
+            if (series->count() > 200) {
                 QPointF leftmostPoint = series->at(0);
                 series->remove(0);
                 xAxis->setMin(QDateTime::fromMSecsSinceEpoch(leftmostPoint.rx()));

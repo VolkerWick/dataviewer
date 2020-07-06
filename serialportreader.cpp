@@ -8,11 +8,24 @@
 
 SerialPortReader::SerialPortReader(QObject *parent)
     : QObject(parent)
+    , port(nullptr)
 {
-    QList<QSerialPortInfo> serialPortInfo = QSerialPortInfo::availablePorts();
+}
 
-    if (!serialPortInfo.isEmpty()) {
-        port = new QSerialPort(QSerialPortInfo::availablePorts().first(), parent);
+QStringList SerialPortReader::portNames()
+{
+    QStringList result;
+
+    for (auto info : QSerialPortInfo::availablePorts()) {
+        result << info.portName();
+    }
+
+    return result;
+}
+
+bool SerialPortReader::open(const QString &portName)
+{
+    if ((port = new QSerialPort(portName, this))) {
 
         connect(port, &QSerialPort::readyRead, this, [=]() {
 
@@ -36,11 +49,33 @@ SerialPortReader::SerialPortReader(QObject *parent)
             qDebug() << QDateTime::currentDateTime() << "Error " << e << "occurred: " << port->errorString();
         });
 
-        if (port->open(QIODevice::ReadOnly)) {
-            qDebug() << "opened port" << port->portName() << "successfully.";
-        }
+        return port->open(QIODevice::ReadOnly);
 
     } else {
-        qDebug() << "No Serial Port active.";
+        return false;
     }
+}
+
+void SerialPortReader::close()
+{
+    port->close();
+    port->disconnect();
+}
+
+bool SerialPortReader::isOpen() const
+{
+    if (port == nullptr) {
+        return false;
+    }
+
+    return port->isOpen();
+}
+
+QString SerialPortReader::errorString() const
+{
+    if (port == nullptr) {
+        return tr("Serial Port Reader not initialized. Unable to obtain error");
+    }
+
+    return port->errorString();
 }

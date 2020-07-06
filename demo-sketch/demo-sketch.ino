@@ -29,7 +29,7 @@ void loop() {
   ++count;
 
   // sine and cosine expect angle in radians
-  float rad = 0.01745329252 * (count % 360);
+  float rad = 0.01745329252 * (count * 10 % 360);
 
   // sig1
   Serial.print(sin(rad));
@@ -64,8 +64,8 @@ void loop() {
   Serial.print(DELIMITER);
 
   // sig9
-  Serial.print(sin(0.01745329252 * count * 0.1) * 10);
+  Serial.print(sin(0.01745329252 * count * 1u) * 10);
   Serial.println();
 
-  delay(10);
+  delay(1);
 }

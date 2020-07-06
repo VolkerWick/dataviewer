@@ -7,6 +7,9 @@
 
 #include <QGridLayout>
 #include <QPushButton>
+#include <QComboBox>
+#include <QLabel>
+
 #include <QDesktopServices>
 
 MainWindow::MainWindow(QWidget *parent)
@@ -28,7 +31,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     // serialPortReader sends the received points to the first chart
     // each chart consumes as many points as needed and forwards 
-    // remaining data points to the next
+    // remaining data points to the next chart
     connect(serialPortReader, &SerialPortReader::sendDataRow, chart1, &DataChartViewer::receiveDataRow);
     connect(chart1, &DataChartViewer::sendDataRow, chart2, &DataChartViewer::receiveDataRow);
     connect(chart2, &DataChartViewer::sendDataRow, chart3, &DataChartViewer::receiveDataRow);
@@ -45,6 +48,28 @@ MainWindow::MainWindow(QWidget *parent)
 
     centralWidget()->setLayout(gridLayout);
 
+    // set up status bar widgets
+    QComboBox* portsComboBox = new QComboBox(this);
+    portsComboBox->addItems(SerialPortReader::portNames());
+
+    const QString strConnect = tr("Connect");
+    const QString strDisconnect = tr("Disconnect");
+
+    QLabel* errorLabel = new QLabel(this);
+
+    QPushButton* connectDisconnectButton = new QPushButton(strConnect, this);
+    connect(connectDisconnectButton, &QPushButton::clicked, this, [=]() {
+        if (serialPortReader->isOpen()) {
+            serialPortReader->close();
+            connectDisconnectButton->setText(strConnect);
+        } else {
+            serialPortReader->open(portsComboBox->currentText());
+            connectDisconnectButton->setText(strDisconnect);
+        }
+
+        errorLabel->setText(serialPortReader->errorString());
+    });
+
     QPushButton* logDirLink = new QPushButton(dataLogger->logFilePath(), this);
     logDirLink->setToolTip(tr("Open log dir"));
 
@@ -52,15 +77,10 @@ MainWindow::MainWindow(QWidget *parent)
         QDesktopServices::openUrl(dataLogger->logFilePath());
     });
 
-    QPushButton* logFileLink = new QPushButton(dataLogger->logFileName(), this);
-    logFileLink->setToolTip(tr("Open log file"));
-
-    connect(logFileLink, &QPushButton::clicked, this,[=]() {
-        QDesktopServices::openUrl(dataLogger->logFileAbsolutePath());
-    });
-
+    ui->statusbar->addWidget(portsComboBox);
+    ui->statusbar->addWidget(connectDisconnectButton);
+    ui->statusbar->addWidget(errorLabel);
     ui->statusbar->addWidget(logDirLink);
-    ui->statusbar->addWidget(logFileLink);
 }
 
 MainWindow::~MainWindow()
