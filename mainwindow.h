@@ -19,5 +19,6 @@ public:
 
 private:
     Ui::MainWindow* ui;
+    QIcon icon;
 };
 #endif // MAINWINDOW_H

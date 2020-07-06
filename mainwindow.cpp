@@ -12,8 +12,10 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
+    , icon(QIcon(":/resource/dataviewer.ico"))
 {
     ui->setupUi(this);
+    setWindowIcon(icon);
 
     SerialPortReader* serialPortReader = new SerialPortReader(this);
     DataLogger* dataLogger = new DataLogger(this);

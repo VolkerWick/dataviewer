@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>resource/dataviewer.ico</file>
+    </qresource>
+</RCC>
