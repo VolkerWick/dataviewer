@@ -7,17 +7,21 @@ using namespace QtCharts;
 
 class SignalInfo {
 public:
-    SignalInfo(const QString& name, const QColor& color, Qt::Alignment alignment = 0) : m_name(name), m_color(color), m_alignment(alignment) {}
+    enum  Align { none = 0, left = 1, right = 2, };
+
+    SignalInfo(const QString& name, const QColor& color, Align align = Align::none) : m_name(name), m_color(color), m_align(align) {}
 
     QString name() const { return m_name; }
     QColor color() const { return m_color; }
-    Qt::Alignment alignment() const { return m_alignment; }
+    Align align() const { return m_align; }
+    bool isAligned() const { return align() != Align::none; }
+
+    Qt::Alignment alignment() const;
 
 private:
     QString m_name;
     QColor m_color;
-    Qt::Alignment m_alignment;
-
+    Align m_align;
 };
 
 class DataChartViewer : public QtCharts::QChartView

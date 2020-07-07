@@ -23,11 +23,11 @@ MainWindow::MainWindow(QWidget *parent)
     SerialPortReader* serialPortReader = new SerialPortReader(this);
     DataLogger* dataLogger = new DataLogger(this);
 
-    DataChartViewer* chart1 = new DataChartViewer({{"Amp-1", "red", Qt::AlignLeft}, {"Amp-2", "green"}, {"Amp-3", "blue"},
-                                                   {"Volt-1", "darkRed", Qt::AlignRight}, { "Volt-2", "darkGreen"}, { "Volt-3", "darkBlue"}});
-    DataChartViewer* chart2 = new DataChartViewer({{"Sig-7", "cyan", Qt::AlignLeft}});
-    DataChartViewer* chart3 = new DataChartViewer({{"Sig-8", "magenta", Qt::AlignLeft}});
-    DataChartViewer* chart4 = new DataChartViewer({{"Sig-9","blue", Qt::AlignLeft}});
+    DataChartViewer* chart1 = new DataChartViewer({{"Amp-1", "red", SignalInfo::left }, {"Amp-2", "green"}, {"Amp-3", "blue"},
+                                                   {"Volt-1", "darkRed", SignalInfo::right}, { "Volt-2", "darkGreen"}, { "Volt-3", "darkBlue"}});
+    DataChartViewer* chart2 = new DataChartViewer({{"Sig-7", "cyan", SignalInfo::left}});
+    DataChartViewer* chart3 = new DataChartViewer({{"Sig-8", "magenta", SignalInfo::left}});
+    DataChartViewer* chart4 = new DataChartViewer({{"Sig-9","blue", SignalInfo::left}});
 
     // serialPortReader sends the received points to the first chart
     // each chart consumes as many points as needed and forwards 
@@ -57,24 +57,27 @@ MainWindow::MainWindow(QWidget *parent)
 
     QLabel* errorLabel = new QLabel(this);
 
+    QPushButton* logDirLink = new QPushButton(DataLogger::logFileDir().absolutePath(), this);
+    logDirLink->setToolTip(tr("Open log dir"));
+
+    connect(logDirLink, &QPushButton::clicked, this,[=]() {
+        QDesktopServices::openUrl(DataLogger::logFileDir().absolutePath());
+    });
+
     QPushButton* connectDisconnectButton = new QPushButton(strConnect, this);
     connect(connectDisconnectButton, &QPushButton::clicked, this, [=]() {
         if (serialPortReader->isOpen()) {
             serialPortReader->close();
+            dataLogger->close();
             connectDisconnectButton->setText(strConnect);
         } else {
             serialPortReader->open(portsComboBox->currentText());
+            dataLogger->open();
             connectDisconnectButton->setText(strDisconnect);
+
         }
 
         errorLabel->setText(serialPortReader->errorString());
-    });
-
-    QPushButton* logDirLink = new QPushButton(dataLogger->logFilePath(), this);
-    logDirLink->setToolTip(tr("Open log dir"));
-
-    connect(logDirLink, &QPushButton::clicked, this,[=]() {
-        QDesktopServices::openUrl(dataLogger->logFilePath());
     });
 
     ui->statusbar->addWidget(portsComboBox);

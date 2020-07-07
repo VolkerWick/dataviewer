@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QPointF>
 #include <QTextStream>
+#include <QDir>
 
 class QFile;
 class QTextStream;
@@ -14,21 +15,18 @@ class DataLogger : public QObject
 public:
     explicit DataLogger(QObject *parent = nullptr);
 
-    // full path of log file
-    QString logFileAbsolutePath() const;
+    static QDir logFileDir();
 
-    // log file's containing directory
-    QString logFilePath() const;
+    bool open();
+    void close();
 
-    // log file's name
-    QString logFileName() const;
+    QString errorString() const;
 
 public slots:
     void receiveDataRow(QList<QPointF>);
 
 private:
-    QString _logFilePath;
-    QFile* logFile;
+    QFile* logFile = nullptr;
     QTextStream logStream;
 };
 

@@ -11,43 +11,51 @@
 
 const char DELIMITER = '\t';
 
-static QString logFilePath() {
+DataLogger::DataLogger(QObject *parent)
+    : QObject(parent)
+{
+}
 
+QDir DataLogger::logFileDir()
+{
     const QDir logFileDir(QStandardPaths::writableLocation(QStandardPaths::DataLocation));
 
     if (!logFileDir.exists()) {
         logFileDir.mkpath(logFileDir.absolutePath());
     }
 
-    return logFileDir.absoluteFilePath(QDateTime::currentDateTime().toString("yyyyMMdd-HHmmss").append(".log"));
+    return logFileDir;
 }
 
-DataLogger::DataLogger(QObject *parent)
-    : QObject(parent)
-    , _logFilePath(::logFilePath())
-    , logFile(new QFile(_logFilePath, parent))
+bool DataLogger::open()
 {
-    if (!logFile->open(QIODevice::WriteOnly|QIODevice::Text)) {
-        qCritical() << "Unable to open LogFile" << logFileAbsolutePath() << logFile->errorString();
-    } else {
+    QString path = logFileDir().absoluteFilePath(QDateTime::currentDateTime().toString("yyyyMMdd-HHmmss").append(".log"));
+    logFile = new QFile(path);
+    if (logFile->open(QIODevice::WriteOnly|QIODevice::Text)) {
         logStream.setDevice(logFile);
         logStream.setRealNumberNotation(QTextStream::FixedNotation);
+
+        return true;
     }
+
+    qCritical() << "Unable to open LogFile" << path << logFile->errorString();
+    return false;
 }
 
-QString DataLogger::logFileAbsolutePath() const
+void DataLogger::close()
 {
-    return _logFilePath;
+    logFile->close();
+    delete logFile;
+    logFile = nullptr;
 }
 
-QString DataLogger::logFilePath() const
+QString DataLogger::errorString() const
 {
-    return QFileInfo(logFileAbsolutePath()).path();
-}
+    if (logFile == nullptr) {
+        return tr("Log File not initialized. Unable to obtain error.");
+    }
 
-QString DataLogger::logFileName() const
-{
-    return QFileInfo(logFileAbsolutePath()).fileName();
+    return logFile->errorString();
 }
 
 static QTextStream& operator<<(QTextStream& s, QList<QPointF>& dataPoints) {

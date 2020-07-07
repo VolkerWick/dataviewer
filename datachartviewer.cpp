@@ -37,7 +37,7 @@ DataChartViewer::DataChartViewer(const QList<SignalInfo> &signalInfo)
 
         // if alignment is specified create new y Axis using alignment
         // otherwise attach existing axis to the series
-        if (info.alignment()) {
+        if (info.isAligned()) {
             QValueAxis* yAxis = new QValueAxis(this);
 
             yAxis->setLabelFormat("%.3f");
@@ -117,4 +117,13 @@ void DataChartViewer::receiveDataRow(QList<QPointF> dataPoints) {
     if (!dataPoints.isEmpty()) {
         emit sendDataRow(dataPoints);
     }
+}
+
+Qt::Alignment SignalInfo::alignment() const
+{
+    if (!isAligned()) {
+        throw new std::runtime_error("Unable to return alignment when align==none");
+    }
+
+    return align() == left ? Qt::AlignLeft : Qt::AlignRight;
 }
