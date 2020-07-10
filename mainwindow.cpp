@@ -4,6 +4,7 @@
 #include "datachartviewer.h"
 #include "serialportreader.h"
 #include "datalogger.h"
+#include "signalinfo.h"
 
 #include <QGridLayout>
 #include <QPushButton>
@@ -11,58 +12,77 @@
 #include <QLabel>
 
 #include <QDesktopServices>
+#include <QJsonObject>
+#include <QJsonArray>
 
-MainWindow::MainWindow(QWidget *parent)
+MainWindow::MainWindow(const QJsonObject& layout, QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
-    , icon(QIcon(":/resource/dataviewer.ico"))
 {
     ui->setupUi(this);
-    setWindowIcon(icon);
 
+    // the serialPortReader will receive data from the USB port, timestamp it and send it row by row to the charts and the datalogger
     SerialPortReader* serialPortReader = new SerialPortReader(this);
+
+    // datalogger receives signals and writes them to a log
     DataLogger* dataLogger = new DataLogger(this);
-
-    DataChartViewer* chart1 = new DataChartViewer({{"Amp-1", "red", SignalInfo::left }, {"Amp-2", "green"}, {"Amp-3", "blue"},
-                                                   {"Volt-1", "darkRed", SignalInfo::right}, { "Volt-2", "darkGreen"}, { "Volt-3", "darkBlue"}});
-    DataChartViewer* chart2 = new DataChartViewer({{"Sig-7", "cyan", SignalInfo::left}});
-    DataChartViewer* chart3 = new DataChartViewer({{"Sig-8", "magenta", SignalInfo::left}});
-    DataChartViewer* chart4 = new DataChartViewer({{"Sig-9","blue", SignalInfo::left}});
-
-    // serialPortReader sends the received points to the first chart
-    // each chart consumes as many points as needed and forwards 
-    // remaining data points to the next chart
-    connect(serialPortReader, &SerialPortReader::sendDataRow, chart1, &DataChartViewer::receiveDataRow);
-    connect(chart1, &DataChartViewer::sendDataRow, chart2, &DataChartViewer::receiveDataRow);
-    connect(chart2, &DataChartViewer::sendDataRow, chart3, &DataChartViewer::receiveDataRow);
-    connect(chart3, &DataChartViewer::sendDataRow, chart4, &DataChartViewer::receiveDataRow);
 
     connect(serialPortReader, &SerialPortReader::sendDataRow, dataLogger, &DataLogger::receiveDataRow);
 
+    // set up charts to be displayed in a grid layout
     QGridLayout* gridLayout = new QGridLayout;
 
-    gridLayout->addWidget(chart1, 0, 0);
-    gridLayout->addWidget(chart2, 0, 1);
-    gridLayout->addWidget(chart3, 1, 0);
-    gridLayout->addWidget(chart4, 1, 1);
+    // charts are connected in a signal chain; the first chart receives a row with all data points
+    // it takes as many data points from the row and sends it to the next chart which takes its points from the row
+    // sending the remainder on to the next chart etc.
+    QObject* previousReceiver = serialPortReader;
+
+    int x = 0, y = 0;
+
+    // parse the layout.json chart by chart and extract the signal information
+    // create data chart graph and configure it according to each chart's layout
+    for (const QJsonValue& signalInfoJson : layout.value("charts").toArray()) {
+
+        QList<SignalInfo> signalInfo;
+        for (const QJsonValue& series: signalInfoJson.toObject().value("series").toArray()) {
+            signalInfo << series.toObject();
+        }
+
+        // construct chart objects and connect them in the signal chain and add them to the user interface
+        DataChartViewer* chart = new DataChartViewer(signalInfo);
+        connect(previousReceiver, SIGNAL(sendDataRow(QList<QPointF>)),chart, SLOT(receiveDataRow(QList<QPointF>)));
+        gridLayout->addWidget(chart, x, y);
+
+        previousReceiver = chart;
+
+        ++x;
+        if (x > 1) {
+            x = 0; ++y;
+        }
+    }
 
     centralWidget()->setLayout(gridLayout);
 
-    // set up status bar widgets
+    // set up status bar widgets...
+
+    // ... combobox for USB ports
     QComboBox* portsComboBox = new QComboBox(this);
     portsComboBox->addItems(SerialPortReader::portNames());
 
-    const QString strConnect = tr("Connect");
-    const QString strDisconnect = tr("Disconnect");
-
+    // ... error label (feedback from serialPortReader)
     QLabel* errorLabel = new QLabel(this);
 
+    // ... button to browse the log file directory
     QPushButton* logDirLink = new QPushButton(DataLogger::logFileDir().absolutePath(), this);
     logDirLink->setToolTip(tr("Open log dir"));
 
     connect(logDirLink, &QPushButton::clicked, this,[=]() {
         QDesktopServices::openUrl(DataLogger::logFileDir().absolutePath());
     });
+
+    // ... button to connect/disconnect to/from serial port
+    const QString strConnect = tr("Connect");
+    const QString strDisconnect = tr("Disconnect");
 
     QPushButton* connectDisconnectButton = new QPushButton(strConnect, this);
     connect(connectDisconnectButton, &QPushButton::clicked, this, [=]() {
@@ -74,7 +94,6 @@ MainWindow::MainWindow(QWidget *parent)
             serialPortReader->open(portsComboBox->currentText());
             dataLogger->open();
             connectDisconnectButton->setText(strDisconnect);
-
         }
 
         errorLabel->setText(serialPortReader->errorString());

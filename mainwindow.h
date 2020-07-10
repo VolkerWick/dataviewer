@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QJsonObject>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -14,11 +15,10 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    MainWindow(QWidget *parent = nullptr);
+    MainWindow(const QJsonObject& layout, QWidget *parent = nullptr);
     ~MainWindow();
 
 private:
     Ui::MainWindow* ui;
-    QIcon icon;
 };
 #endif // MAINWINDOW_H

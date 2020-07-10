@@ -10,13 +10,15 @@ SOURCES += \
     datalogger.cpp \
     main.cpp \
     mainwindow.cpp \
-    serialportreader.cpp
+    serialportreader.cpp \
+    signalinfo.cpp
 
 HEADERS += \
     datachartviewer.h \
     datalogger.h \
     mainwindow.h \
-    serialportreader.h
+    serialportreader.h \
+    signalinfo.h
 
 FORMS += \
     mainwindow.ui
@@ -27,3 +29,6 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 RESOURCES += \
     resource.qrc
+
+DISTFILES += \
+    layouts/layout.json

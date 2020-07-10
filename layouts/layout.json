@@ -1,0 +1,65 @@
+{
+    "charts": [
+        {
+            "series": [
+                {
+                    "name": "amp1",
+                    "color": "red",
+                    "align": "left"
+                },
+                {
+                    "name": "amp2",
+                    "color": "green"
+                },
+                {
+                    "name": "amp3",
+                    "color": "blue"
+                }
+            ]
+        },
+        {
+            "series": [
+                {
+                    "name": "volt1",
+                    "color": "darkRed",
+                    "align": "left"
+                },
+                {
+                    "name": "volt2",
+                    "color": "darkGreen"
+                },
+                {
+                    "name": "volt3",
+                    "color": "darkBlue"
+                }
+            ]
+        },
+        {
+            "series": [
+                {
+                    "name": "Sig-7",
+                    "color": "cyan",
+                    "align": "left"
+                }
+            ]
+        },
+        {
+            "series": [
+                {
+                    "name": "Sig-8",
+                    "color": "magenta",
+                    "align": "left"
+                }
+            ]
+        },
+        {
+            "series": [
+                {
+                    "name": "Sig-7",
+                    "color": "#ff9900",
+                    "align": "left"
+                }
+            ]
+        }
+    ]
+}

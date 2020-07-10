@@ -15,9 +15,13 @@ class DataLogger : public QObject
 public:
     explicit DataLogger(QObject *parent = nullptr);
 
+    // OS-specific location for the log files (creates directory if it doesn't exist)
     static QDir logFileDir();
 
+    // create a new log file (timestamp as name) and open it for subsequent logging
     bool open();
+
+    // close the previously opened log file
     void close();
 
     QString errorString() const;

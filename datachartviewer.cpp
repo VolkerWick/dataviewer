@@ -75,7 +75,6 @@ static bool greater(const QPointF& left, const QPointF& right) {
 // receiveDataRow consumes as many points as are needed to plot the signals for the owned graph
 // and forwards the remaining list of points to the next DataChartViewer
 void DataChartViewer::receiveDataRow(QList<QPointF> dataPoints) {
-    QList<QPointF> effectiveDataPoints;
 
     QDateTimeAxis* xAxis = dynamic_cast<QDateTimeAxis*>(chart->axes(Qt::Horizontal).first());
 
@@ -119,11 +118,3 @@ void DataChartViewer::receiveDataRow(QList<QPointF> dataPoints) {
     }
 }
 
-Qt::Alignment SignalInfo::alignment() const
-{
-    if (!isAligned()) {
-        throw new std::runtime_error("Unable to return alignment when align==none");
-    }
-
-    return align() == left ? Qt::AlignLeft : Qt::AlignRight;
-}
