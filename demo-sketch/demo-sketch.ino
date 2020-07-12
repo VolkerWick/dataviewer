@@ -5,7 +5,7 @@
 long count = 0;
 bool on = true;
 
-const char DELIMITER = ',';
+const char DELIMITER = ';';
 
 void setup() {
 
