@@ -5,6 +5,8 @@
 #include <QPointF>
 #include <QTextStream>
 #include <QDir>
+#include <QDateTime>
+
 
 class QFile;
 class QTextStream;
@@ -27,7 +29,7 @@ public:
     QString errorString() const;
 
 public slots:
-    void receiveDataRow(QList<QPointF>);
+    void receiveDataRow(QDateTime timeStamp, QList<float> dataSignal);
 
 private:
     QFile* logFile = nullptr;

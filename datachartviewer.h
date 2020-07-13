@@ -1,6 +1,7 @@
 #ifndef DATACHARTVIEWER_H
 #define DATACHARTVIEWER_H
 
+#include <QDateTime>
 #include <QChartView>
 using namespace QtCharts;
 
@@ -16,10 +17,10 @@ public:
     ~DataChartViewer();
 
 public slots:
-    void receiveDataRow(QList<QPointF>);
+    void receiveDataRow(QDateTime timeStamp, QList<float> dataSignal);
 
 signals:
-    void sendDataRow(QList<QPointF>);
+    void sendDataRow(QDateTime timeStamp, QList<float> dataSignal);
 
 private:
     QChart* chart;

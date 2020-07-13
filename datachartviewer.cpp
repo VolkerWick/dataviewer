@@ -1,12 +1,12 @@
 #include "datachartviewer.h"
 
+#include <cmath>
+
 #include <QDateTimeAxis>
 #include <QLineSeries>
 #include <QValueAxis>
 
 #include <QDateTime>
-#include <QTimer>
-#include <QRandomGenerator>
 
 using namespace QtCharts;
 
@@ -74,16 +74,18 @@ static bool greater(const QPointF& left, const QPointF& right) {
 
 // receiveDataRow consumes as many points as are needed to plot the signals for the owned graph
 // and forwards the remaining list of points to the next DataChartViewer
-void DataChartViewer::receiveDataRow(QList<QPointF> dataPoints) {
+void DataChartViewer::receiveDataRow(QDateTime timeStamp, QList<float> dataSignal) {
+
+    // qDebug() << Q_FUNC_INFO <<  "receive:" << timeStamp << dataSignal;
 
     QDateTimeAxis* xAxis = dynamic_cast<QDateTimeAxis*>(chart->axes(Qt::Horizontal).first());
 
     for (int index = 0; index < chart->series().count(); index++) {
 
         QLineSeries* series = dynamic_cast<QLineSeries*>(chart->series().at(index));
-        if (series != nullptr && !dataPoints.isEmpty()) {
+        if (series != nullptr && !dataSignal.isEmpty()) {
 
-            QPointF point = dataPoints.takeFirst();
+            QPointF point(timeStamp.toMSecsSinceEpoch(), dataSignal.takeFirst());
 
             series->append(point);
 
@@ -113,8 +115,8 @@ void DataChartViewer::receiveDataRow(QList<QPointF> dataPoints) {
         }
     }
 
-    if (!dataPoints.isEmpty()) {
-        emit sendDataRow(dataPoints);
+    if (!dataSignal.isEmpty()) {
+        emit sendDataRow(timeStamp, dataSignal);
     }
 }
 

@@ -3,6 +3,10 @@
 
 #include <QObject>
 #include <QPointF>
+#include <QDateTime>
+
+// character that separates subsequent data values
+#define DELIMITER '\t'
 
 class QSerialPort;
 
@@ -22,7 +26,8 @@ public:
     QString errorString() const;
 
 signals:
-    void sendDataRow(QList<QPointF>);
+    // send time-stamped row of data signals
+    void sendDataRow(QDateTime timeStamp, QList<float> dataSignal);
 
 private:
     QSerialPort* port;

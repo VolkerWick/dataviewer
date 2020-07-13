@@ -2,8 +2,6 @@
 
 #include <QApplication>
 #include <QJsonDocument>
-#include <QJsonArray>
-#include <QJsonObject>
 #include <QFile>
 #include <QMessageBox>
 #include <QIcon>
@@ -12,7 +10,7 @@
 
 int main(int argc, char *argv[])
 {
-    QApplication::setApplicationVersion("0.3.0");
+    QApplication::setApplicationVersion("0.3.1");
     QApplication::setApplicationName("DataViewer");
 
     QApplication a(argc, argv);

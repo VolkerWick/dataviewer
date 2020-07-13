@@ -30,23 +30,27 @@ bool SerialPortReader::open(const QString &portName)
         connect(port, &QSerialPort::readyRead, this, [=]() {
 
             if (port->canReadLine()) {
-                QDateTime stamp = QDateTime::currentDateTime();
+                QDateTime timeStamp = QDateTime::currentDateTime();
                 QByteArray line = port->readLine();
 
-                QList<QPointF> dataPoints;
-                QByteArrayList items = line.split(',');
+                QList<float> dataPoints;
+                QByteArrayList items = line.split(DELIMITER);
 
                 for (const QByteArray& item : items) {
                     float floatValue = item.toFloat();
-                    dataPoints << QPointF(stamp.toMSecsSinceEpoch(), floatValue);
+                    dataPoints << floatValue;
                 }
 
-                emit sendDataRow(dataPoints);
+                // qDebug() << Q_FUNC_INFO << "send:" << timeStamp << dataPoints;
+
+                emit sendDataRow(timeStamp, dataPoints);
             }
         });
 
         connect(port, &QSerialPort::errorOccurred, this, [=](QSerialPort::SerialPortError e) {
-            qDebug() << QDateTime::currentDateTime() << "Error " << e << "occurred: " << port->errorString();
+            if (e != QSerialPort::NoError) {
+                qCritical() << QDateTime::currentDateTime() << "Error " << e << "occurred: " << port->errorString();
+            }
         });
 
         return port->open(QIODevice::ReadOnly);

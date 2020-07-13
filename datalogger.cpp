@@ -1,15 +1,11 @@
 #include "datalogger.h"
 
 #include <QStandardPaths>
-#include <QDateTime>
-#include <QDir>
-#include <QFileInfo>
-#include <QFile>
-#include <QTextStream>
-
 #include <QDebug>
 
-const char DELIMITER = '\t';
+#include "serialportreader.h"
+
+const int REALNUMBERPRECISION = 2;
 
 DataLogger::DataLogger(QObject *parent)
     : QObject(parent)
@@ -58,25 +54,18 @@ QString DataLogger::errorString() const
     return logFile->errorString();
 }
 
-static QTextStream& operator<<(QTextStream& s, QList<QPointF>& dataPoints) {
-
-    // first column: timestamp in unix format, no decimal places needed
-    // use the first point's time stamp for this row
-    s << qSetRealNumberPrecision(0) << dataPoints.first().rx() << DELIMITER;
-
-    // for the actual data points show decimal places
-    s << qSetRealNumberPrecision(2);
+static QTextStream& operator<<(QTextStream& s, const QList<float>& dataPoints) {
 
     for (auto point : dataPoints) {
-        s << point.ry() << DELIMITER;
+        s << point << DELIMITER;
     }
 
     return s << Qt::endl;
 }
 
-void DataLogger::receiveDataRow(QList<QPointF> dataPoints)
+void DataLogger::receiveDataRow(QDateTime timeStamp, QList<float> dataSignal)
 {
     if (logStream.device()) {
-        logStream << dataPoints;
+        logStream << timeStamp.toString("hh:mm:ss.zzz") << qSetRealNumberPrecision(REALNUMBERPRECISION) << DELIMITER << dataSignal;
     }
 }

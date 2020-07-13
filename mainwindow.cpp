@@ -50,10 +50,12 @@ MainWindow::MainWindow(const QJsonObject& layout, QWidget *parent)
 
         // construct chart objects and connect them in the signal chain and add them to the user interface
         DataChartViewer* chart = new DataChartViewer(signalInfo);
-        connect(previousReceiver, SIGNAL(sendDataRow(QList<QPointF>)),chart, SLOT(receiveDataRow(QList<QPointF>)));
-        gridLayout->addWidget(chart, x, y);
 
+        // continue signal-chain
+        connect(previousReceiver, SIGNAL(sendDataRow(QDateTime,QList<float>)),chart, SLOT(receiveDataRow(QDateTime,QList<float>)));
         previousReceiver = chart;
+
+        gridLayout->addWidget(chart, x, y);
 
         ++x;
         if (x > 1) {
@@ -68,13 +70,15 @@ MainWindow::MainWindow(const QJsonObject& layout, QWidget *parent)
     // ... combobox for USB ports
     QComboBox* portsComboBox = new QComboBox(this);
     portsComboBox->addItems(SerialPortReader::portNames());
+    portsComboBox->setToolTip(tr("Available serial ports."));
 
     // ... error label (feedback from serialPortReader)
     QLabel* errorLabel = new QLabel(this);
+    errorLabel->setToolTip(tr("Status messages from the serial port."));
 
     // ... button to browse the log file directory
     QPushButton* logDirLink = new QPushButton(DataLogger::logFileDir().absolutePath(), this);
-    logDirLink->setToolTip(tr("Open log dir"));
+    logDirLink->setToolTip(tr("Browse the log file directory."));
 
     connect(logDirLink, &QPushButton::clicked, this,[=]() {
         QDesktopServices::openUrl(DataLogger::logFileDir().absolutePath());
@@ -85,6 +89,7 @@ MainWindow::MainWindow(const QJsonObject& layout, QWidget *parent)
     const QString strDisconnect = tr("Disconnect");
 
     QPushButton* connectDisconnectButton = new QPushButton(strConnect, this);
+    connectDisconnectButton->setToolTip(tr("Connect/disconnect to/from the Serial Port"));
     connect(connectDisconnectButton, &QPushButton::clicked, this, [=]() {
         if (serialPortReader->isOpen()) {
             serialPortReader->close();

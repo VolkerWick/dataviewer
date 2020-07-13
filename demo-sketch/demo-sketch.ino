@@ -5,7 +5,7 @@
 long count = 0;
 bool on = true;
 
-const char DELIMITER = ',';
+const char DELIMITER = '\t';
 
 void setup() {
 
@@ -13,7 +13,8 @@ void setup() {
   
   pinMode(LED_BUILTIN, OUTPUT);
 
-  Serial.print("sig1\tsig2\tsig3\tsig4\tsig5\tsig6\tsig7\tsig8\tsig9\t\n");
+  Serial.println();
+  Serial.print("sig1,sig2,sig3,sig4,sig5,sig6,sig7,sig8,sig9\n");
 }
 
 void loop() {
@@ -67,5 +68,5 @@ void loop() {
   Serial.print(sin(0.01745329252 * count * 1u) * 10);
   Serial.println();
 
-  delay(1);
+  delay(50);
 }
