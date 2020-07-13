@@ -21,16 +21,16 @@
             "series": [
                 {
                     "name": "volt1",
-                    "color": "red",
+                    "color": "darkRed",
                     "align": "left"
                 },
                 {
                     "name": "volt2",
-                    "color": "green"
+                    "color": "darkGreen"
                 },
                 {
                     "name": "volt3",
-                    "color": "blue"
+                    "color": "darkBlue"
                 }
             ]
         },

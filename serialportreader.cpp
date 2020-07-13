@@ -6,8 +6,6 @@
 
 #include <QDebug>
 
-const char DELIMITER = ';';
-
 SerialPortReader::SerialPortReader(QObject *parent)
     : QObject(parent)
     , port(nullptr)
@@ -36,7 +34,7 @@ bool SerialPortReader::open(const QString &portName)
                 QByteArray line = port->readLine();
 
                 QList<QPointF> dataPoints;
-                QByteArrayList items = line.split(DELIMITER);
+                QByteArrayList items = line.split(',');
 
                 for (const QByteArray& item : items) {
                     float floatValue = item.toFloat();
