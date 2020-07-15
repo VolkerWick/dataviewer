@@ -60,12 +60,18 @@ static QTextStream& operator<<(QTextStream& s, const QList<float>& dataPoints) {
         s << point << DELIMITER;
     }
 
-    return s << Qt::endl;
+    return s;
 }
 
 void DataLogger::receiveDataRow(QDateTime timeStamp, QList<float> dataSignal)
 {
     if (logStream.device()) {
-        logStream << timeStamp.toString("hh:mm:ss.zzz") << qSetRealNumberPrecision(REALNUMBERPRECISION) << DELIMITER << dataSignal;
+        logStream << timeStamp.toString("hh:mm:ss.zzz") << qSetRealNumberPrecision(REALNUMBERPRECISION) << DELIMITER << dataSignal
+
+#if (QT_VERSION > QT_VERSION_CHECK(5, 12, 0))
+    << Qt::endl;
+#else
+    << endl;
+#endif
     }
 }
