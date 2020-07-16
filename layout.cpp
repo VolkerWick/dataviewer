@@ -26,13 +26,16 @@ QDebug operator<<(QDebug s, const ChartInfo& chartInfo) {
 static QJsonDocument readJson(const QString& fileName) {
     QFile f(fileName);
     if (!f.open(QIODevice::ReadOnly|QIODevice::Text)) {
-        throw new std::runtime_error(QObject::tr("Unable to open %s (%s)").arg(fileName, f.errorString()).toStdString().c_str());
+        throw new std::runtime_error(QObject::tr("Unable to open %1.\n%2")
+                                     .arg(fileName, f.errorString()).toStdString().c_str());
     }
 
     QJsonParseError error;
     QJsonDocument result = QJsonDocument::fromJson(f.readAll(),&error);
     if (error.error != QJsonParseError::NoError) {
-        throw new std::runtime_error(QObject::tr("Unable to parse %s (%s)").arg(fileName, error.errorString()).toStdString().c_str());
+        throw new std::runtime_error(QObject::tr("Unable to parse %1.\n%2\nApproximate location: %3")
+                                     .arg(fileName, error.errorString())
+                                     .arg(error.offset).toStdString().c_str());
     }
 
     return result;
