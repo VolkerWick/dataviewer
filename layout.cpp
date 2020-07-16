@@ -70,7 +70,7 @@ Layout::Layout(const QString& fileName)
     }
 
     QJsonArray chartArray = doc.array();
-    std::for_each(chartArray.cbegin(), chartArray.cend(),[=](const QJsonValue& chart) {
+    std::for_each(chartArray.begin(), chartArray.end(),[=](const QJsonValue& chart) {
         chartInfo << ChartInfo(chart.toObject());
     });
 
@@ -88,7 +88,7 @@ ChartInfo::ChartInfo(const QJsonObject& o)
     if (o.contains(SIGNAL)) {
         QJsonArray signalList = o.value(SIGNAL).toArray();
 
-        std::for_each(signalList.cbegin(), signalList.cend(),[=](const QJsonValue& signl){
+        std::for_each(signalList.begin(), signalList.end(),[=](const QJsonValue& signl){
             signalInfo << SignalInfo(signl.toObject());
         });
     } else {
