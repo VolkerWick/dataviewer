@@ -7,6 +7,7 @@
 
 #include <QGridLayout>
 #include <QPushButton>
+#include <QToolButton>
 #include <QComboBox>
 #include <QLabel>
 #include <QCheckBox>
@@ -63,9 +64,20 @@ MainWindow::MainWindow(const Layout& layout, QWidget *parent)
     // set up status bar widgets...
 
     // ... combobox for USB ports
+
     QComboBox* portsComboBox = new QComboBox(this);
     portsComboBox->addItems(SerialPortReader::portNames());
     portsComboBox->setToolTip(tr("Available serial ports."));
+
+    // ... refresh button for ports
+    QToolButton* refresh = new QToolButton(this);
+    refresh->setToolTip(tr("Refresh list of available serial ports."));
+    refresh->setIcon(QIcon(":/resource/refresh.ico"));
+
+    connect(refresh, &QPushButton::clicked, this, [=](){
+        portsComboBox->clear();
+        portsComboBox->addItems(SerialPortReader::portNames());
+    });
 
     // ... error label (feedback from serialPortReader)
     QLabel* errorLabel = new QLabel(this);
@@ -93,28 +105,36 @@ MainWindow::MainWindow(const Layout& layout, QWidget *parent)
     });
 
     // ... button to connect/disconnect to/from serial port
-    const QString strConnect = tr("Connect");
-    const QString strDisconnect = tr("Disconnect");
+    const QIcon connectIcon(":/resource/connect.ico");
+    const QIcon disconnectIcon(":/resource/disconnect.ico");
 
-    QPushButton* connectDisconnectButton = new QPushButton(strConnect, this);
-    connectDisconnectButton->setToolTip(tr("Connect/disconnect to/from the Serial Port"));
-    connect(connectDisconnectButton, &QPushButton::clicked, this, [=]() {
+    const QString connectToolTip = tr("Connect to selected serial port.");
+    const QString disconnectToolTip = tr("Disconnect from serial port.");
+
+    QToolButton* connectDisconnectButton = new QToolButton(this);
+    connectDisconnectButton->setIcon(connectIcon);
+    connectDisconnectButton->setToolTip(connectToolTip);
+
+    connect(connectDisconnectButton, &QToolButton::clicked, this, [=]() {
         if (serialPortReader->isOpen()) {
             serialPortReader->close();
             dataLogger->close();
-            connectDisconnectButton->setText(strConnect);
+            connectDisconnectButton->setIcon(connectIcon);
+            connectDisconnectButton->setToolTip(connectToolTip);
         } else {
             serialPortReader->open(portsComboBox->currentText());
             if (startStopLog->isChecked()) {
                 dataLogger->open();
             }
-            connectDisconnectButton->setText(strDisconnect);
+            connectDisconnectButton->setIcon(disconnectIcon);
+            connectDisconnectButton->setToolTip(disconnectToolTip);
         }
 
         errorLabel->setText(serialPortReader->errorString());
     });
 
     ui->statusbar->addWidget(portsComboBox);
+    ui->statusbar->addWidget(refresh);
     ui->statusbar->addWidget(connectDisconnectButton);
     ui->statusbar->addWidget(errorLabel);
     ui->statusbar->addWidget(logDirLink);

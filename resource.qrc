@@ -1,5 +1,8 @@
 <RCC>
     <qresource prefix="/">
         <file>resource/dataviewer.ico</file>
+        <file>resource/refresh.ico</file>
+        <file>resource/connect.ico</file>
+        <file>resource/disconnect.ico</file>
     </qresource>
 </RCC>
