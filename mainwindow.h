@@ -2,7 +2,8 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QJsonObject>
+
+#include "layout.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -15,7 +16,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    MainWindow(const QJsonObject& layout, QWidget *parent = nullptr);
+    MainWindow(const Layout& layout, QWidget *parent = nullptr);
     ~MainWindow();
 
 private:

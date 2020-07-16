@@ -2,7 +2,6 @@
 #define SERIALPORTREADER_H
 
 #include <QObject>
-#include <QPointF>
 #include <QDateTime>
 
 // character that separates subsequent data values

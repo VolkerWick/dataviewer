@@ -5,15 +5,13 @@
 #include <QChartView>
 using namespace QtCharts;
 
-#include "signalinfo.h"
+#include "layout.h"
 
 class DataChartViewer : public QtCharts::QChartView
 {
     Q_OBJECT
 public:
-
-    // set up the chart viewer as configured by the parameter
-    DataChartViewer(const QList<SignalInfo>& signalInfo);
+    DataChartViewer(const ChartInfo& chartInfo);
     ~DataChartViewer();
 
 public slots:

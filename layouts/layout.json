@@ -1,65 +1,74 @@
-{
-    "charts": [
-        {
-            "series": [
-                {
-                    "name": "amp1",
-                    "color": "red",
-                    "align": "left"
-                },
-                {
-                    "name": "amp2",
-                    "color": "green"
-                },
-                {
-                    "name": "amp3",
-                    "color": "blue"
-                }
-            ]
-        },
-        {
-            "series": [
-                {
-                    "name": "volt1",
-                    "color": "darkRed",
-                    "align": "left"
-                },
-                {
-                    "name": "volt2",
-                    "color": "darkGreen"
-                },
-                {
-                    "name": "volt3",
-                    "color": "darkBlue"
-                }
-            ]
-        },
-        {
-            "series": [
-                {
-                    "name": "Sig-7",
-                    "color": "cyan",
-                    "align": "left"
-                }
-            ]
-        },
-        {
-            "series": [
-                {
-                    "name": "Sig-8",
-                    "color": "magenta",
-                    "align": "left"
-                }
-            ]
-        },
-        {
-            "series": [
-                {
-                    "name": "Sig-7",
-                    "color": "#ff9900",
-                    "align": "left"
-                }
-            ]
+[
+  {
+    "title": "Ampere",
+    "signal": [
+      {
+        "name": "Amp Phase 1",
+        "color": "red",
+        "axis": {
+          "align": "left",
+          "title": "Ampere"
         }
+      },
+      {
+        "name": "Amp Phase 2",
+        "color": "green"
+      },
+      {
+        "name": "Amp Phase ",
+        "color": "blue"
+      }
     ]
-}
+  },
+  {
+    "title": "Volt",
+    "signal": [
+      {
+        "name": "Volt Phase 1",
+        "color": "red",
+        "axis": {
+          "align": "left",
+          "title": "Volt"
+        }
+      },
+      {
+        "name": "Volt Phase 2",
+        "color": "green"
+      },
+      {
+        "name": "Volt Phase ",
+        "color": "blue"
+      }
+    ]
+  },
+  {
+    "title": "Third Chart",
+    "signal": [
+      {
+        "name": "some signal",
+        "color": "cyan",
+        "axis": {
+          "align": "right",
+          "name": "some right aligned stuff"
+        }
+      }
+    ]
+  },
+  {
+    "title": "Fourth Chart",
+    "signal": [
+      {
+        "name": "some signal",
+        "color": "cyan",
+        "axis": {
+          "align": "left",
+          "name": "Data"
+        }
+      },
+      {
+        "name": "another signal",
+        "color": "#FF8800"
+      }
+    ]
+  }
+]

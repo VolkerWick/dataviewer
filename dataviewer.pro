@@ -8,17 +8,17 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     datachartviewer.cpp \
     datalogger.cpp \
+    layout.cpp \
     main.cpp \
     mainwindow.cpp \
-    serialportreader.cpp \
-    signalinfo.cpp
+    serialportreader.cpp
 
 HEADERS += \
     datachartviewer.h \
     datalogger.h \
+    layout.h \
     mainwindow.h \
-    serialportreader.h \
-    signalinfo.h
+    serialportreader.h
 
 FORMS += \
     mainwindow.ui

@@ -4,7 +4,6 @@
 #include "datachartviewer.h"
 #include "serialportreader.h"
 #include "datalogger.h"
-#include "signalinfo.h"
 
 #include <QGridLayout>
 #include <QPushButton>
@@ -15,7 +14,7 @@
 #include <QJsonObject>
 #include <QJsonArray>
 
-MainWindow::MainWindow(const QJsonObject& layout, QWidget *parent)
+MainWindow::MainWindow(const Layout& layout, QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
@@ -41,15 +40,10 @@ MainWindow::MainWindow(const QJsonObject& layout, QWidget *parent)
 
     // parse the layout.json chart by chart and extract the signal information
     // create data chart graph and configure it according to each chart's layout
-    for (const QJsonValue& signalInfoJson : layout.value("charts").toArray()) {
-
-        QList<SignalInfo> signalInfo;
-        for (const QJsonValue& series: signalInfoJson.toObject().value("series").toArray()) {
-            signalInfo << series.toObject();
-        }
+    for (const ChartInfo& chartInfo : layout.getChartInfo()) {
 
         // construct chart objects and connect them in the signal chain and add them to the user interface
-        DataChartViewer* chart = new DataChartViewer(signalInfo);
+        DataChartViewer* chart = new DataChartViewer(chartInfo);
 
         // continue signal-chain
         connect(previousReceiver, SIGNAL(sendDataRow(QDateTime,QList<float>)),chart, SLOT(receiveDataRow(QDateTime,QList<float>)));

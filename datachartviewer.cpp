@@ -14,9 +14,11 @@ static QDateTime now() {
     return QDateTime::currentDateTime();
 }
 
-DataChartViewer::DataChartViewer(const QList<SignalInfo> &signalInfo)
+DataChartViewer::DataChartViewer(const ChartInfo& chartInfo)
     : chart(new QChart)
 {
+    chart->setTitle(chartInfo.getTitle());
+
     // one x axis for all series
     QDateTimeAxis* xAxis = new QDateTimeAxis(this);
 
@@ -27,23 +29,24 @@ DataChartViewer::DataChartViewer(const QList<SignalInfo> &signalInfo)
     chart->addAxis(xAxis, Qt::AlignBottom);
 
     int index = 0;
-    for (auto info : signalInfo) {
+    for (auto info : chartInfo.getSignalInfo()) {
+
         QLineSeries* series = new QLineSeries(this);
-        series->setName(info.name());
-        series->setColor(info.color());
+        series->setName(info.getSignalName());
+        series->setColor(info.getColor());
 
         chart->addSeries(series);
         series->attachAxis(xAxis);
 
         // if alignment is specified create new y Axis using alignment
         // otherwise attach existing axis to the series
-        if (info.isAligned()) {
+        if (info.getAxisInfo().getAlignment() != ALIGN_INVALID) {
             QValueAxis* yAxis = new QValueAxis(this);
 
             yAxis->setLabelFormat("%.3f");
-            yAxis->setTitleText(info.name());
+            yAxis->setTitleText(info.getAxisInfo().getTitle());
 
-            chart->addAxis(yAxis, info.alignment());
+            chart->addAxis(yAxis, info.getAxisInfo().getAlignment());
 
             series->attachAxis(yAxis);
         } else {
