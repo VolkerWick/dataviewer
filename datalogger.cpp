@@ -40,6 +40,7 @@ bool DataLogger::open()
 
 void DataLogger::close()
 {
+    logStream.setDevice(nullptr);
     logFile->close();
     delete logFile;
     logFile = nullptr;

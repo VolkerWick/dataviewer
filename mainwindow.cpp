@@ -9,6 +9,7 @@
 #include <QPushButton>
 #include <QComboBox>
 #include <QLabel>
+#include <QCheckBox>
 
 #include <QDesktopServices>
 #include <QJsonObject>
@@ -74,6 +75,19 @@ MainWindow::MainWindow(const Layout& layout, QWidget *parent)
     QPushButton* logDirLink = new QPushButton(DataLogger::logFileDir().absolutePath(), this);
     logDirLink->setToolTip(tr("Browse the log file directory."));
 
+    // ... checkbox to turn logging on/off
+    QCheckBox* startStopLog = new QCheckBox(tr("Logger active"), this);
+    startStopLog->setCheckState(Qt::Checked);
+    startStopLog->setToolTip(tr("Toggle logging."));
+
+    connect(startStopLog, &QCheckBox::clicked, this, [=]() {
+        if (startStopLog->isChecked()) {
+            dataLogger->open();
+        } else {
+            dataLogger->close();
+        }
+    });
+
     connect(logDirLink, &QPushButton::clicked, this,[=]() {
         QDesktopServices::openUrl(DataLogger::logFileDir().absolutePath());
     });
@@ -91,7 +105,9 @@ MainWindow::MainWindow(const Layout& layout, QWidget *parent)
             connectDisconnectButton->setText(strConnect);
         } else {
             serialPortReader->open(portsComboBox->currentText());
-            dataLogger->open();
+            if (startStopLog->isChecked()) {
+                dataLogger->open();
+            }
             connectDisconnectButton->setText(strDisconnect);
         }
 
@@ -102,6 +118,7 @@ MainWindow::MainWindow(const Layout& layout, QWidget *parent)
     ui->statusbar->addWidget(connectDisconnectButton);
     ui->statusbar->addWidget(errorLabel);
     ui->statusbar->addWidget(logDirLink);
+    ui->statusbar->addWidget(startStopLog);
 }
 
 MainWindow::~MainWindow()
