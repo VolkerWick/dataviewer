@@ -1,16 +1,25 @@
 #include "layout.h"
 
 #include <QJsonArray>
-
 #include <QFile>
 #include <QDebug>
+
+// json field names
+const char* const TITLE = "title";
+const char* const SIGNAL = "signal";
+const char* const AXIS = "axis";
+const char* const NAME = "name";
+const char* const COLOR = "color";
+const char* const ALIGN = "align";
+const char* const LEFT = "left";
+const char* const RIGHT = "right";
 
 QDebug operator<<(QDebug s, const AxisInfo& axisInfo) {
     s << "\n\t\tAxisInfo:" << axisInfo.getTitle() << axisInfo.getAlignment();
     return s;
 }
 
-QDebug operator<<(QDebug s, const SignalInfoEx& signl) {
+QDebug operator<<(QDebug s, const SignalInfo& signl) {
     s << "\n\tSignalInfoEx:" << signl.getSignalName() << "Color" << signl.getColor() << signl.getAxisInfo() << "\n";
     return s;
 }
@@ -41,9 +50,26 @@ static QJsonDocument readJson(const QString& fileName) {
     return result;
 }
 
+static QString getValueString(const QJsonObject& o, const QString& key) {
+    QString result;
+    if (o.contains(key)) {
+        result = o.value(key).toString();
+    } else {
+        qWarning() << "Missing key" << key << " in " << o;
+    }
+
+    return result;
+}
+
 Layout::Layout(const QString& fileName)
 {
-    QJsonArray chartArray = readJson(fileName).array();
+    QJsonDocument doc = readJson(fileName);
+    if (!doc.isArray()) {
+        throw new std::runtime_error(QObject::tr("Json Document in %1 must be an array, i.e. start and end with square brackets.")
+                                     .arg(fileName).toStdString().c_str());
+    }
+
+    QJsonArray chartArray = doc.array();
     std::for_each(chartArray.cbegin(), chartArray.cend(),[=](const QJsonValue& chart) {
         chartInfo << ChartInfo(chart.toObject());
     });
@@ -57,13 +83,17 @@ QList<ChartInfo> Layout::getChartInfo() const
 }
 
 ChartInfo::ChartInfo(const QJsonObject& o)
-    : title(o.value("title").toString())
+    : title(getValueString(o, TITLE))
 {
-    QJsonArray signalList = o.value("signal").toArray();
+    if (o.contains(SIGNAL)) {
+        QJsonArray signalList = o.value(SIGNAL).toArray();
 
-    std::for_each(signalList.cbegin(), signalList.cend(),[=](const QJsonValue& signl){
-        signalInfo << SignalInfoEx(signl.toObject());
-    });
+        std::for_each(signalList.cbegin(), signalList.cend(),[=](const QJsonValue& signl){
+            signalInfo << SignalInfo(signl.toObject());
+        });
+    } else {
+        qWarning() << "Missing key" << SIGNAL << " in " << o;
+    }
 }
 
 QString ChartInfo::getTitle() const
@@ -71,31 +101,31 @@ QString ChartInfo::getTitle() const
     return title;
 }
 
-QList<SignalInfoEx> ChartInfo::getSignalInfo() const
+QList<SignalInfo> ChartInfo::getSignalInfo() const
 {
     return signalInfo;
 }
 
-SignalInfoEx::SignalInfoEx(const QJsonObject& o)
-    : signalName(o.value("name").toString())
-    , color(QColor(o.value("color").toString()))
+SignalInfo::SignalInfo(const QJsonObject& o)
+    : signalName(getValueString(o, NAME))
+    , color(QColor(getValueString(o, COLOR)))
 {
-    if (!o.value("axis").isUndefined()) {
-        axisInfo = AxisInfo(o.value("axis").toObject());
+    if (!o.value(AXIS).isUndefined()) {
+        axisInfo = AxisInfo(o.value(AXIS).toObject());
     }
 }
 
-QString SignalInfoEx::getSignalName() const
+QString SignalInfo::getSignalName() const
 {
     return signalName;
 }
 
-QColor SignalInfoEx::getColor() const
+QColor SignalInfo::getColor() const
 {
     return color;
 }
 
-AxisInfo SignalInfoEx::getAxisInfo() const
+AxisInfo SignalInfo::getAxisInfo() const
 {
     return axisInfo;
 }
@@ -104,10 +134,10 @@ AxisInfo::AxisInfo(const QJsonObject& o)
     : title(o.value("title").toString())
     , alignment(ALIGN_INVALID)
 {
-    QString s = o.value("align").toString();
-    if (s == "left") {
+    QString s = getValueString(o, ALIGN);
+    if (s == LEFT) {
         alignment = Qt::AlignLeft;
-    } else if (s == "right") {
+    } else if (s == RIGHT) {
         alignment = Qt::AlignRight;
     }
 }

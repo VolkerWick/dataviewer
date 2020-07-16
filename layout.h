@@ -19,8 +19,8 @@ private:
     Qt::Alignment alignment;
 };
 
-struct SignalInfoEx {
-    SignalInfoEx(const QJsonObject& o);
+struct SignalInfo {
+    SignalInfo(const QJsonObject& o);
 
     QString getSignalName() const;
     QColor getColor() const;
@@ -36,11 +36,11 @@ struct ChartInfo {
     ChartInfo(const QJsonObject& o);
 
     QString getTitle() const;
-    QList<SignalInfoEx> getSignalInfo() const;
+    QList<SignalInfo> getSignalInfo() const;
 
 private:
     QString title;
-    QList<SignalInfoEx> signalInfo;
+    QList<SignalInfo> signalInfo;
 };
 
 class Layout

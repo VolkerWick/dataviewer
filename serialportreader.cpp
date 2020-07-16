@@ -42,8 +42,12 @@ bool SerialPortReader::open(const QString &portName)
                 }
 
                 // qDebug() << Q_FUNC_INFO << "send:" << timeStamp << dataPoints;
+                // discard the first row of data in case it is incomplete
+                if (firstEolEncountered) {
+                    emit sendDataRow(timeStamp, dataPoints);
+                }
 
-                emit sendDataRow(timeStamp, dataPoints);
+                firstEolEncountered = true;
             }
         });
 

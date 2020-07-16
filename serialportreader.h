@@ -30,6 +30,7 @@ signals:
 
 private:
     QSerialPort* port;
+    bool firstEolEncountered = false;
 };
 
 #endif // SERIALPORTREADER_H
