@@ -6,17 +6,17 @@
 #include <QDebug>
 
 QDebug operator<<(QDebug s, const AxisInfo& axisInfo) {
-    s << "AxisInfo:" << axisInfo.getTitle() << axisInfo.getAlignment();
+    s << "\n\t\tAxisInfo:" << axisInfo.getTitle() << axisInfo.getAlignment();
     return s;
 }
 
 QDebug operator<<(QDebug s, const SignalInfoEx& signl) {
-    s << "SignalInfoEx:" << signl.getSignalName() << "Color" << signl.getColor() << signl.getAxisInfo() << "\n";
+    s << "\n\tSignalInfoEx:" << signl.getSignalName() << "Color" << signl.getColor() << signl.getAxisInfo() << "\n";
     return s;
 }
 
 QDebug operator<<(QDebug s, const ChartInfo& chartInfo) {
-    s << "ChartInfo:" << chartInfo.getTitle();
+    s << "\nChartInfo:" << chartInfo.getTitle();
     for (auto info: chartInfo.getSignalInfo()) {
         s << info;
     }
